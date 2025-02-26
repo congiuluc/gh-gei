@@ -242,7 +242,7 @@ namespace OctoshiftCLI.IntegrationTests
 
         private async Task<string> CreatePipeline(string org, string teamProject, string name, string ymlFile, string repoId, string repoName, string adoServerUrl)
         {
-            var url = $"{adoServerUrl}/{org}/{teamProject}/_apis/pipelines?api-version=6.1-preview.1";
+            var url = $"{adoServerUrl}/{org}/{teamProject}/_apis/pipelines?api-version=5.0-preview.1";
 
             var payload = new
             {
@@ -268,7 +268,7 @@ namespace OctoshiftCLI.IntegrationTests
 
         private async Task<string> InitializeRepo(string org, string repoId, string adoServerUrl)
         {
-            var url = $"{adoServerUrl}/{org}/_apis/git/repositories/{repoId}/pushes?api-version=6.0";
+            var url = $"{adoServerUrl}/{org}/_apis/git/repositories/{repoId}/pushes?api-version=5.0-preview.1";
 
             var payload = new
             {
@@ -311,7 +311,7 @@ namespace OctoshiftCLI.IntegrationTests
 
         private async Task<string> PushDummyPipelineYaml(string org, string repoId, string parentCommit, string adoServerUrl)
         {
-            var url = $"{adoServerUrl}/{org}/_apis/git/repositories/{repoId}/pushes?api-version=6.0";
+            var url = $"{adoServerUrl}/{org}/_apis/git/repositories/{repoId}/pushes?api-version=5.0-preview.1";
 
             var payload = new
             {
@@ -370,7 +370,7 @@ steps:
             var gitReposNamespace = "2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87";
             var token = $"repoV2/{teamProjectId}/{repoId}";
 
-            var url = $"{adoServerUrl}/{org}/_apis/accesscontrollists/{gitReposNamespace}?token={token}&descriptors={identityDescriptor}&api-version=6.0";
+            var url = $"{adoServerUrl}/{org}/_apis/accesscontrollists/{gitReposNamespace}?token={token}&descriptors={identityDescriptor}&api-version=5.0-preview.1";
 
             var response = await _adoClient.GetAsync(url);
 
@@ -382,14 +382,14 @@ steps:
 
         private async Task<IEnumerable<(string Id, string Name, string Type)>> GetServiceConnections(string org, string teamProject, string adoServerUrl)
         {
-            var url = $"{adoServerUrl}/{org}/{teamProject}/_apis/serviceendpoint/endpoints?api-version=6.0-preview.4";
+            var url = $"{adoServerUrl}/{org}/{teamProject}/_apis/serviceendpoint/endpoints?api-version=5.0-preview.1";
             var response = await _adoClient.GetWithPagingAsync(url);
             return response.Select(x => ((string)x["id"], (string)x["name"], (string)x["type"]));
         }
 
         private async Task<(string Id, string Type, string ConnectedServiceId)> GetPipelineRepo(string org, string teamProject, int pipelineId, string adoServerUrl)
         {
-            var url = $"{adoServerUrl}/{org}/{teamProject}/_apis/build/definitions/{pipelineId}?api-version=6.0";
+            var url = $"{adoServerUrl}/{org}/{teamProject}/_apis/build/definitions/{pipelineId}?api-version=5.0-preview.1";
             var response = await _adoClient.GetAsync(url);
             var result = JObject.Parse(response)["repository"];
             return ((string)result["id"], (string)result["type"], (string)result["properties"]["connectedServiceId"]);
@@ -397,7 +397,7 @@ steps:
 
         private async Task<string> DeleteTeamProject(string org, string teamProjectId, string adoServerUrl)
         {
-            var url = $"{adoServerUrl}/{org}/_apis/projects/{teamProjectId}?api-version=6.0";
+            var url = $"{adoServerUrl}/{org}/_apis/projects/{teamProjectId}?api-version=5.0-preview.1";
 
             var response = await _adoClient.DeleteAsync(url);
             var result = JObject.Parse(response);
@@ -407,7 +407,7 @@ steps:
 
         private async Task<string> QueueCreateTeamProject(string org, string teamProject, string adoServerUrl)
         {
-            var url = $"{adoServerUrl}/{org}/_apis/projects?api-version=6.0";
+            var url = $"{adoServerUrl}/{org}/_apis/projects?api-version=5.0-preview.1";
 
             var payload = new
             {
@@ -433,14 +433,14 @@ steps:
 
         private async Task<string> GetTeamProjectStatus(string org, string teamProjectId, string adoServerUrl)
         {
-            var url = $"{adoServerUrl}/{org}/_apis/projects/{teamProjectId}?api-version=6.0";
+            var url = $"{adoServerUrl}/{org}/_apis/projects/{teamProjectId}?api-version=5.0-preview.1";
             var response = await _adoClient.GetAsync(url);
             return (string)JObject.Parse(response)["state"];
         }
 
         private async Task<string> GetOperationStatus(string org, string operationId, string adoServerUrl)
         {
-            var url = $"{adoServerUrl}/{org}/_apis/operations/{operationId}?api-version=6.0";
+            var url = $"{adoServerUrl}/{org}/_apis/operations/{operationId}?api-version=5.0-preview.1";
             var response = await _adoClient.GetAsync(url);
             return (string)JObject.Parse(response)["status"];
         }
