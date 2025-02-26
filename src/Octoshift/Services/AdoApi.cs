@@ -61,7 +61,7 @@ public class AdoApi
 
     public virtual async Task<DateTime> GetLastPushDate(string org, string teamProject, string repo)
     {
-        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/git/repositories/{repo.EscapeDataString()}/pushes?$top=1&api-version=7.1-preview.2";
+        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/git/repositories/{repo.EscapeDataString()}/pushes?$top=1&api-version=5.0-preview.1";
         var response = await _client.GetAsync(url);
 
         var data = JObject.Parse(response);
@@ -72,13 +72,13 @@ public class AdoApi
 
     public virtual async Task<int> GetCommitCountSince(string org, string teamProject, string repo, DateTime fromDate)
     {
-        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/git/repositories/{repo.EscapeDataString()}/commits?searchCriteria.fromDate={fromDate.ToString("d", CultureInfo.InvariantCulture)}&api-version=7.1-preview.1";
+        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/git/repositories/{repo.EscapeDataString()}/commits?searchCriteria.fromDate={fromDate.ToString("d", CultureInfo.InvariantCulture)}&api-version=5.0-preview.1";
         return await _client.GetCountUsingSkip(url);
     }
 
     public virtual async Task<IEnumerable<string>> GetPushersSince(string org, string teamProject, string repo, DateTime fromDate)
     {
-        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/git/repositories/{repo.EscapeDataString()}/pushes?searchCriteria.fromDate={fromDate.ToString("d", CultureInfo.InvariantCulture)}&api-version=7.1-preview.1";
+        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/git/repositories/{repo.EscapeDataString()}/pushes?searchCriteria.fromDate={fromDate.ToString("d", CultureInfo.InvariantCulture)}&api-version=5.0-preview.1";
         var response = await _client.GetWithPagingTopSkipAsync(url, x => $"{x["pushedBy"]["displayName"]} ({x["pushedBy"]["uniqueName"]})");
 
         return response;
@@ -86,7 +86,7 @@ public class AdoApi
 
     public virtual async Task<int> GetPullRequestCount(string org, string teamProject, string repo)
     {
-        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/git/repositories/{repo.EscapeDataString()}/pullrequests?searchCriteria.status=all&api-version=7.1-preview.1";
+        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/git/repositories/{repo.EscapeDataString()}/pullrequests?searchCriteria.status=all&api-version=5.0-preview.1";
         var count = await _client.GetCountUsingSkip(url);
         return count;
     }
@@ -134,7 +134,7 @@ public class AdoApi
 
     public virtual async Task<IEnumerable<string>> GetTeamProjects(string org)
     {
-        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/_apis/projects?api-version=6.1-preview";
+        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/_apis/projects?api-version=5.0-preview.1";
         var data = await _client.GetWithPagingAsync(url);
         return data.Select(x => (string)x["name"]).ToList();
     }
@@ -143,7 +143,7 @@ public class AdoApi
 
     public virtual async Task<IEnumerable<AdoRepository>> GetRepos(string org, string teamProject)
     {
-        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/git/repositories?api-version=6.1-preview.1";
+        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/git/repositories?api-version=5.0-preview.1";
         var data = await _client.GetWithPagingAsync(url);
         return data
             .Select(x => new AdoRepository
@@ -177,7 +177,7 @@ public class AdoApi
 
     private async Task<string> GetTeamProjectGithubAppId(string org, string githubOrg, string teamProject)
     {
-        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/serviceendpoint/endpoints?api-version=6.0-preview.4";
+        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/serviceendpoint/endpoints?api-version=5.0-preview.1";
         var response = await _client.GetWithPagingAsync(url);
 
         var endpoint = response.FirstOrDefault(x => ((string)x["type"]).Equals("GitHub", StringComparison.OrdinalIgnoreCase) && ((string)x["name"]).Equals(githubOrg, StringComparison.OrdinalIgnoreCase));
@@ -472,7 +472,7 @@ public class AdoApi
 
     public virtual async Task<bool> ContainsServiceConnection(string adoOrg, string adoTeamProject, string serviceConnectionId)
     {
-        var url = $"{_adoBaseUrl}/{adoOrg.EscapeDataString()}/{adoTeamProject.EscapeDataString()}/_apis/serviceendpoint/endpoints/{serviceConnectionId.EscapeDataString()}?api-version=6.0-preview.4";
+        var url = $"{_adoBaseUrl}/{adoOrg.EscapeDataString()}/{adoTeamProject.EscapeDataString()}/_apis/serviceendpoint/endpoints/{serviceConnectionId.EscapeDataString()}?api-version=5.0-preview.1";
 
         var response = await _client.GetAsync(url);
 
@@ -482,7 +482,7 @@ public class AdoApi
 
     public virtual async Task ShareServiceConnection(string adoOrg, string adoTeamProject, string adoTeamProjectId, string serviceConnectionId)
     {
-        var url = $"{_adoBaseUrl}/{adoOrg.EscapeDataString()}/_apis/serviceendpoint/endpoints/{serviceConnectionId.EscapeDataString()}?api-version=6.0-preview.4";
+        var url = $"{_adoBaseUrl}/{adoOrg.EscapeDataString()}/_apis/serviceendpoint/endpoints/{serviceConnectionId.EscapeDataString()}?api-version=5.0-preview.1";
 
         var payload = new[]
         {
@@ -502,7 +502,7 @@ public class AdoApi
 
     public virtual async Task<(string DefaultBranch, string Clean, string CheckoutSubmodules)> GetPipeline(string org, string teamProject, int pipelineId)
     {
-        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/build/definitions/{pipelineId}?api-version=6.0";
+        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/build/definitions/{pipelineId}?api-version=5.0-preview.1";
 
         var response = await _client.GetAsync(url);
         var data = JObject.Parse(response);
@@ -525,7 +525,7 @@ public class AdoApi
 
     public virtual async Task ChangePipelineRepo(string adoOrg, string teamProject, int pipelineId, string defaultBranch, string clean, string checkoutSubmodules, string githubOrg, string githubRepo, string connectedServiceId)
     {
-        var url = $"{_adoBaseUrl}/{adoOrg.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/build/definitions/{pipelineId}?api-version=6.0";
+        var url = $"{_adoBaseUrl}/{adoOrg.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/build/definitions/{pipelineId}?api-version=5.0-preview.1";
 
         var response = await _client.GetAsync(url);
         var data = JObject.Parse(response);
@@ -646,7 +646,7 @@ public class AdoApi
 
     public virtual async Task DisableRepo(string org, string teamProject, string repoId)
     {
-        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/git/repositories/{repoId.EscapeDataString()}?api-version=6.1-preview.1";
+        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/{teamProject.EscapeDataString()}/_apis/git/repositories/{repoId.EscapeDataString()}?api-version=5.0-preview.1";
 
         var payload = new { isDisabled = true };
         await _client.PatchAsync(url, payload);
@@ -654,7 +654,7 @@ public class AdoApi
 
     public virtual async Task<string> GetIdentityDescriptor(string org, string teamProjectId, string groupName)
     {
-        var url = $"https://vssps.dev.azure.com/{org.EscapeDataString()}/_apis/identities?searchFilter=General&filterValue={groupName.EscapeDataString()}&queryMembership=None&api-version=6.1-preview.1";
+        var url = $"https://vssps.dev.azure.com/{org.EscapeDataString()}/_apis/identities?searchFilter=General&filterValue={groupName.EscapeDataString()}&queryMembership=None&api-version=5.0-preview.1";
 
         var identities = await _client.GetWithPagingAsync(url);
 
@@ -666,7 +666,7 @@ public class AdoApi
     {
         var gitReposNamespace = "2e9eb7ed-3c0a-47d4-87c1-0ffdd275fd87";
 
-        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/_apis/accesscontrolentries/{gitReposNamespace.EscapeDataString()}?api-version=6.1-preview.1";
+        var url = $"{_adoBaseUrl}/{org.EscapeDataString()}/_apis/accesscontrolentries/{gitReposNamespace.EscapeDataString()}?api-version=5.0-preview.1";
 
         var payload = new
         {
@@ -702,7 +702,7 @@ public class AdoApi
 
     private async Task<bool> HasPermission(string org, string securityNamespaceId, int permission)
     {
-        var response = await _client.GetAsync($"{_adoBaseUrl}/{org.EscapeDataString()}/_apis/permissions/{securityNamespaceId.EscapeDataString()}/{permission}?api-version=6.0");
+        var response = await _client.GetAsync($"{_adoBaseUrl}/{org.EscapeDataString()}/_apis/permissions/{securityNamespaceId.EscapeDataString()}/{permission}?api-version=5.0-preview.1");
         return ((string)JObject.Parse(response)["value"]?.FirstOrDefault()).ToBool();
     }
 }
